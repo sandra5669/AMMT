@@ -7,14 +7,8 @@ pipeline {
     }
 */	
     environment {
-        NEXUS_VERSION = "nexus3"
-        NEXUS_PROTOCOL = "http"
-        NEXUSIP = "54.199.77.74"
-        NEXUSPORT = "8081"
-        NEXUS_REPOSITORY = "maven-release-proj"
-	    NEXUS_REPO_GRP_ID    = "maven-group-proj"
-        NEXUS_CREDENTIAL_ID = "nexuslogin"
-        ARTVERSION = "${env.BUILD_ID}"
+        registry = "sandra002/ammt"
+        registryCredential = 'sandradocker'
     }
 	
     stages{
@@ -52,6 +46,24 @@ pipeline {
                 }
             }
         }
+    stage('Building image') {
+            steps{
+              script {
+                dockerImage = docker.build registry + ":$BUILD_NUMBER"
+              }
+            }
+        }
+        
+        stage('Deploy Image') {
+          steps{
+            script {
+              docker.withRegistry( '', registryCredential ) {
+                dockerImage.push("$BUILD_NUMBER")
+                dockerImage.push('latest')
+              }
+            }
+          }
+        }
      stage('CODE ANALYSIS with SONARQUBE') {
           
 		  environment {
@@ -72,24 +84,6 @@ pipeline {
 
           }
         }
-    stage('UPLOAD ARTIFACT') {
-                steps {
-                    nexusArtifactUploader(
-                        nexusVersion: 'nexus3',
-                        protocol: 'http',
-                        nexusUrl: "${NEXUSIP}:${NEXUSPORT}",
-                        groupId: 'QA',
-                        version: "${env.BUILD_ID}-${env.BUILD_TIMESTAMP}",
-                        repository: "${NEXUS_REPOSITORY}",
-                        credentialsId: "${NEXUS_CREDENTIAL_ID}",
-                        artifacts: [
-                            [artifactId: 'vproapp' ,
-                            classifier: '',
-                            file: 'target/vprofile-v2.war',
-                            type: 'war']
-                        ]
-                    )
-                }
-        }
+    
     }
 }
