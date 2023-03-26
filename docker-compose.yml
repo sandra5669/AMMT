@@ -1,0 +1,6 @@
+version: '3'
+services:
+  web:
+    image: sandra002/ammt:latest
+    ports:
+      - "8888:8080"

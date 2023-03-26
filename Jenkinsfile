@@ -61,6 +61,8 @@ pipeline {
               docker.withRegistry( '', registryCredential ) {
                 dockerImage.push("$BUILD_NUMBER")
                 dockerImage.push('latest')
+                sh 'docker-compose down'
+                sh 'docker-compose up'
                 sh 'docker run -d -p 8888:8080 sandra002/ammt:latest'
               }
             }
