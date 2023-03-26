@@ -8,7 +8,7 @@ pipeline {
 */	
     environment {
         registry = "sandra002/ammt"
-        registryCredential = 'sandradocker'
+        registryCredential = 'dockerhub'
     }
 	
     stages{
